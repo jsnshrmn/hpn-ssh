@@ -47,4 +47,6 @@ hpnsshd
 !regress/misc/fuzz-harness/Makefile
 !regress/unittests/sshsig/Makefile
 tags
+*.snap
+!snap/local/bin/sshd
 
