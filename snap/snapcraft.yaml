@@ -1,0 +1,55 @@
+name: jsn-sherman-hpnssh
+base: core24
+summary: An unofficial snap for the high performance fork of openssh-portable
+description: |
+  HPN-SSH is a series of modifications to OpenSSH, the predominant implementation of the ssh protocol. It was originally developed to address performance issues when using ssh on high speed long distance networks (also known as Long Fat Networks: LFNs). By taking advantage of automatically optimized receive buffers HPN-SSH could improve performance dramatically on these paths. Later advances include; disabling encryption after authentication to transport non-sensitive bulk data, modifying the AES-CTR cipher to use multiple CPU cores, more detailed connection logging, and peak throughput values in the scp progress bar.
+grade: devel
+confinement: strict
+adopt-info: hpnssh
+system-usernames:
+  _daemon_: shared
+parts:
+  files:
+    plugin: dump
+    source: snap/local
+  hpnssh:
+    source: .
+    # automatically version the snap based on git tag + rev
+    override-pull: |
+      craftctl default
+      tags=$(git describe --tags --abbrev=10)
+      hash=$(git rev-parse --short HEAD --abbrev=10)
+      version="${tags#hpn-}-${hash}"
+      craftctl set version="${version}"
+    plugin: make
+    # setup snap system account and install
+    override-build: |
+      autoreconf -f -i
+      groupadd -g 584788 _daemon_ || true
+      useradd _daemon_ -u 584788 -g 584788 -m -s /bin/false || true
+      mkdir -p /var/empty /usr/local/libexec
+      ./configure \
+      --prefix= \
+      --libexecdir=/usr/local/libexec \
+      --with-privsep-path=/snap/hpnssh/current/var/empty \
+      --with-privsep-user=_daemon_
+      make
+      make DESTDIR=${CRAFT_PART_INSTALL} install
+      cp -r /usr/local/libexec ${CRAFT_PART_INSTALL}/usr/local
+    build-packages:
+      - autoconf
+      - automake
+      - git
+      - libssl-dev
+      - libz-dev
+      - python3
+apps:
+  ssh:
+    command: bin/hpnssh
+    plugs: [ network ]
+  sshd:
+    command: bin/sshd
+    plugs: [ network, network-bind ]
+    daemon: simple
+  ssh-keygen:
+    command: bin/hpnssh-keygen
