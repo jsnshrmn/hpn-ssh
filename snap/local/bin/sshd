@@ -5,7 +5,7 @@ mkdir -p ${keypath}
 
 ${SNAP}/bin/hpnssh-keygen -f ${SNAP_COMMON} -A
 if [ ! -f /usr/local/libexec/hpnsshd-session ]; then
-       mount --bind /snap/hpnssh/current/usr/local /usr/local
+       mount --bind /snap/${SNAP_NAME}/current/usr/local /usr/local
 fi
 ${SNAP}/sbin/hpnsshd -e -D \
 	-f ${SNAP}/etc/hpnssh/sshd_config \

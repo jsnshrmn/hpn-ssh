@@ -31,7 +31,7 @@ parts:
       ./configure \
       --prefix= \
       --libexecdir=/usr/local/libexec \
-      --with-privsep-path=/snap/hpnssh/current/var/empty \
+      --with-privsep-path=/snap/${SNAPCRAFT_PROJECT_NAME}/current/var/empty \
       --with-privsep-user=snap_daemon
       make
       make DESTDIR=${CRAFT_PART_INSTALL} install
