@@ -13,14 +13,13 @@ parts:
     plugin: dump
     source: snap/local
   hpnssh:
-    source: .
+    source: https://github.com/jsnshrmn/hpn-ssh.git
     # automatically version the snap based on git tag + rev
     override-pull: |
       craftctl default
-      tags=$(git describe --tags --abbrev=10)
+      cd ${CRAFT_PART_SRC}
       hash=$(git rev-parse --short HEAD --abbrev=10)
-      version="${tags#hpn-}-${hash}"
-      craftctl set version="${version}"
+      craftctl set version="${hash}"
     plugin: make
     # setup snap system account and install
     override-build: |
